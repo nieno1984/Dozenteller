@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b5ed7">
+  <title>Dozenrekenaar</title>
+  <style>
+    :root { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #f3f6fa;
+      color: #172033;
+      padding: 20px;
+    }
+    .card {
+      width: min(100%, 420px);
+      background: #fff;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 12px 32px rgba(23,32,51,.12);
+    }
+    h1 { margin: 0 0 22px; font-size: 28px; }
+    label { display: block; font-weight: 700; margin: 16px 0 8px; }
+    input {
+      width: 100%;
+      font-size: 24px;
+      padding: 14px 16px;
+      border: 2px solid #cfd7e6;
+      border-radius: 12px;
+      outline: none;
+      background: #fff;
+    }
+    input:focus { border-color: #0b5ed7; }
+    .result {
+      margin-top: 22px;
+      border-top: 1px solid #e4e9f2;
+      padding-top: 18px;
+      display: grid;
+      gap: 12px;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f7f9fc;
+      border-radius: 12px;
+      padding: 15px 16px;
+      font-size: 20px;
+    }
+    .value { font-size: 28px; font-weight: 800; color: #0b5ed7; }
+    .hint { margin: 14px 0 0; color: #697386; font-size: 14px; line-height: 1.4; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>📦 Dozenrekenaar</h1>
+
+    <label for="nodig">Aantal nodig</label>
+    <input id="nodig" type="number" inputmode="numeric" min="0" step="1" placeholder="Bijv. 122" autocomplete="off">
+
+    <label for="perDoos">Stuks per doos</label>
+    <input id="perDoos" type="number" inputmode="numeric" min="1" step="1" placeholder="Bijv. 15" autocomplete="off">
+
+    <section class="result" aria-live="polite">
+      <div class="row"><span>Volle dozen</span><span class="value" id="dozen">0</span></div>
+      <div class="row"><span>Losse stuks</span><span class="value" id="los">0</span></div>
+    </section>
+
+    <p class="hint">Voorbeeld: 122 nodig en 15 per doos = 8 volle dozen en 2 losse stuks.</p>
+  </main>
+
+  <script>
+    (function () {
+      const nodig = document.getElementById('nodig');
+      const perDoos = document.getElementById('perDoos');
+      const dozen = document.getElementById('dozen');
+      const los = document.getElementById('los');
+
+      function bereken() {
+        const totaal = Math.max(0, Math.floor(Number(nodig.value) || 0));
+        const inhoud = Math.floor(Number(perDoos.value) || 0);
+
+        if (inhoud < 1) {
+          dozen.textContent = '0';
+          los.textContent = totaal.toString();
+          return;
+        }
+
+        dozen.textContent = Math.floor(totaal / inhoud).toString();
+        los.textContent = (totaal % inhoud).toString();
+      }
+
+      nodig.addEventListener('input', bereken);
+      perDoos.addEventListener('input', bereken);
+      nodig.addEventListener('change', bereken);
+      perDoos.addEventListener('change', bereken);
+      bereken();
+    }());
+  </script>
+</body>
+</html>
