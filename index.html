@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a63ce">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Dozenteller</title>
+  <style>
+    :root{
+      --bg:#f4f7fb;
+      --card:#ffffff;
+      --text:#172033;
+      --muted:#697386;
+      --line:#dfe5ec;
+      --blue:#0a63ce;
+      --blue-dark:#084d9f;
+      --green:#157347;
+      --green-bg:#edf9f2;
+      --orange:#9a5b00;
+      --orange-bg:#fff8e8;
+      --shadow:0 12px 34px rgba(20,34,54,.10);
+    }
+
+    *{box-sizing:border-box}
+
+    html{
+      -webkit-text-size-adjust:100%;
+      text-size-adjust:100%;
+    }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      padding:
+        calc(18px + env(safe-area-inset-top))
+        16px
+        calc(28px + env(safe-area-inset-bottom));
+    }
+
+    .app{
+      width:min(100%,540px);
+      margin:0 auto;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .logo{
+      width:48px;
+      height:48px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(145deg,#0a63ce,#0c7be8);
+      color:white;
+      font-size:25px;
+      box-shadow:var(--shadow);
+    }
+
+    h1{
+      margin:0;
+      font-size:31px;
+      line-height:1.05;
+      letter-spacing:-.5px;
+    }
+
+    .subtitle{
+      margin:5px 0 0;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.4;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid rgba(223,229,236,.9);
+      border-radius:22px;
+      padding:20px;
+      box-shadow:var(--shadow);
+    }
+
+    .field{margin-bottom:17px}
+
+    label{
+      display:block;
+      margin-bottom:8px;
+      font-size:15px;
+      font-weight:800;
+    }
+
+    input{
+      width:100%;
+      height:58px;
+      border:1.5px solid var(--line);
+      border-radius:14px;
+      padding:0 15px;
+      background:#fff;
+      color:var(--text);
+      font-size:23px;
+      font-weight:700;
+      outline:none;
+      appearance:none;
+      -webkit-appearance:none;
+    }
+
+    input:focus{
+      border-color:var(--blue);
+      box-shadow:0 0 0 4px rgba(10,99,206,.12);
+    }
+
+    .calculate{
+      width:100%;
+      min-height:60px;
+      border:0;
+      border-radius:15px;
+      background:var(--blue);
+      color:white;
+      font-size:19px;
+      font-weight:900;
+      cursor:pointer;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .calculate:active{
+      background:var(--blue-dark);
+      transform:translateY(1px);
+    }
+
+    .error{
+      display:none;
+      margin-top:14px;
+      padding:13px 14px;
+      border-radius:13px;
+      background:#fff1f0;
+      border:1px solid #f5b1aa;
+      color:#b42318;
+      font-weight:800;
+      line-height:1.4;
+    }
+
+    .error.show{display:block}
+
+    .results{
+      display:none;
+      margin-top:18px;
+    }
+
+    .results.show{display:block}
+
+    .results-title{
+      margin:0 0 12px;
+      font-size:18px;
+    }
+
+    .option{
+      position:relative;
+      border-radius:18px;
+      padding:17px;
+      border:1px solid var(--line);
+      margin-top:12px;
+    }
+
+    .option.recommended{
+      background:var(--green-bg);
+      border-color:#a7dfbf;
+    }
+
+    .option.alternative{
+      background:var(--orange-bg);
+      border-color:#f1cf87;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      min-height:26px;
+      padding:4px 9px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      margin-bottom:10px;
+    }
+
+    .recommended .badge{
+      background:#d7f2e2;
+      color:var(--green);
+    }
+
+    .alternative .badge{
+      background:#ffedbd;
+      color:var(--orange);
+    }
+
+    .option h2{
+      margin:0 0 10px;
+      font-size:21px;
+      line-height:1.2;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:9px 0;
+      border-top:1px solid rgba(105,115,134,.16);
+    }
+
+    .row:first-of-type{
+      border-top:0;
+      padding-top:0;
+    }
+
+    .row span{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.35;
+    }
+
+    .row strong{
+      font-size:25px;
+      white-space:nowrap;
+    }
+
+    .summary{
+      margin-top:10px;
+      font-size:14px;
+      font-weight:700;
+      line-height:1.45;
+    }
+
+    .actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .secondary{
+      min-height:54px;
+      border:0;
+      border-radius:14px;
+      font-size:16px;
+      font-weight:850;
+      cursor:pointer;
+      touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .copy{
+      background:#e7f0fb;
+      color:#0a4e9e;
+    }
+
+    .reset{
+      background:#ebeff4;
+      color:#2b3a50;
+    }
+
+    .secondary:active{transform:translateY(1px)}
+
+    .footer{
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+      padding:16px 8px 0;
+    }
+
+    @media (max-width:390px){
+      h1{font-size:28px}
+      .card{padding:17px}
+      .actions{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="brand">
+      <div class="logo">📦</div>
+      <div>
+        <h1>Dozenteller</h1>
+        <p class="subtitle">Vergelijk beide werkwijzen en kies de minste producthandelingen.</p>
+      </div>
+    </header>
+
+    <section class="card">
+      <form id="calculator" novalidate>
+        <div class="field">
+          <label for="orderQty">Aantal stuks in de order</label>
+          <input id="orderQty" type="number" inputmode="numeric" min="1" step="1" placeholder="Bijvoorbeeld 133" required>
+        </div>
+
+        <div class="field">
+          <label for="boxQty">Aantal stuks per doos</label>
+          <input id="boxQty" type="number" inputmode="numeric" min="1" step="1" placeholder="Bijvoorbeeld 15" required>
+        </div>
+
+        <button class="calculate" type="submit">Berekenen</button>
+        <div id="error" class="error" role="alert"></div>
+
+        <div id="results" class="results" aria-live="polite">
+          <h2 class="results-title">Beide opties</h2>
+
+          <section id="optionOne" class="option">
+            <div id="badgeOne" class="badge"></div>
+            <h2>Optie 1 — losse stuks pakken</h2>
+
+            <div class="row">
+              <span>Volle dozen</span>
+              <strong id="fullBoxesOne">0</strong>
+            </div>
+
+            <div class="row">
+              <span>Losse stuks pakken</span>
+              <strong id="looseItems">0</strong>
+            </div>
+
+            <div class="row">
+              <span>Producthandelingen</span>
+              <strong id="handlingOne">0</strong>
+            </div>
+
+            <p id="summaryOne" class="summary"></p>
+          </section>
+
+          <section id="optionTwo" class="option">
+            <div id="badgeTwo" class="badge"></div>
+            <h2>Optie 2 — stuks verwijderen</h2>
+
+            <div class="row">
+              <span>Volle dozen</span>
+              <strong id="fullBoxesTwo">0</strong>
+            </div>
+
+            <div class="row">
+              <span>Stuks verwijderen</span>
+              <strong id="removeItems">0</strong>
+            </div>
+
+            <div class="row">
+              <span>Producthandelingen</span>
+              <strong id="handlingTwo">0</strong>
+            </div>
+
+            <p id="summaryTwo" class="summary"></p>
+          </section>
+
+          <div class="actions">
+            <button type="button" id="copyBtn" class="secondary copy">Kopieer uitkomst</button>
+            <button type="button" id="resetBtn" class="secondary reset">Nieuwe berekening</button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <div class="footer">Werkt op iPhone, Android en computer. Geen installatie nodig.</div>
+  </main>
+
+  <script>
+    (function(){
+      "use strict";
+
+      const form = document.getElementById("calculator");
+      const orderInput = document.getElementById("orderQty");
+      const boxInput = document.getElementById("boxQty");
+      const results = document.getElementById("results");
+      const error = document.getElementById("error");
+      const resetBtn = document.getElementById("resetBtn");
+      const copyBtn = document.getElementById("copyBtn");
+
+      let lastCopyText = "";
+
+      function setText(id, value){
+        document.getElementById(id).textContent = String(value);
+      }
+
+      function showError(message){
+        error.textContent = message;
+        error.classList.add("show");
+        results.classList.remove("show");
+      }
+
+      function clearError(){
+        error.textContent = "";
+        error.classList.remove("show");
+      }
+
+      function styleOption(optionId, badgeId, recommended, equal){
+        const option = document.getElementById(optionId);
+        const badge = document.getElementById(badgeId);
+
+        option.classList.remove("recommended","alternative");
+
+        if(equal){
+          option.classList.add("recommended");
+          badge.textContent = "Evenveel handelingen";
+        }else if(recommended){
+          option.classList.add("recommended");
+          badge.textContent = "Aanbevolen";
+        }else{
+          option.classList.add("alternative");
+          badge.textContent = "Alternatief";
+        }
+      }
+
+      form.addEventListener("submit", function(event){
+        event.preventDefault();
+        clearError();
+
+        const orderQty = Number.parseInt(orderInput.value, 10);
+        const boxQty = Number.parseInt(boxInput.value, 10);
+
+        if(!Number.isInteger(orderQty) || orderQty < 1){
+          showError("Vul een geldig aantal orderstuks in.");
+          orderInput.focus();
+          return;
+        }
+
+        if(!Number.isInteger(boxQty) || boxQty < 1){
+          showError("Vul een geldig aantal stuks per doos in.");
+          boxInput.focus();
+          return;
+        }
+
+        const fullBoxes = Math.floor(orderQty / boxQty);
+        const looseItems = orderQty % boxQty;
+        const totalBoxes = Math.ceil(orderQty / boxQty);
+        const removeItems = looseItems === 0 ? 0 : boxQty - looseItems;
+
+        const handlingOne = looseItems;
+        const handlingTwo = removeItems;
+
+        setText("fullBoxesOne", fullBoxes);
+        setText("looseItems", looseItems);
+        setText("handlingOne", handlingOne);
+
+        setText("fullBoxesTwo", totalBoxes);
+        setText("removeItems", removeItems);
+        setText("handlingTwo", handlingTwo);
+
+        const summaryOne = document.getElementById("summaryOne");
+        const summaryTwo = document.getElementById("summaryTwo");
+
+        if(looseItems === 0){
+          summaryOne.textContent = "Precies passend. Je hoeft geen losse stuks te pakken.";
+          summaryTwo.textContent = "Precies passend. Je hoeft niets te verwijderen.";
+          styleOption("optionOne","badgeOne",true,true);
+          styleOption("optionTwo","badgeTwo",true,true);
+        }else{
+          summaryOne.textContent =
+            "Pak " + fullBoxes + " volle " + (fullBoxes === 1 ? "doos" : "dozen") +
+            " en daarna " + looseItems + " losse " + (looseItems === 1 ? "stuk" : "stuks") + ".";
+
+          summaryTwo.textContent =
+            "Pak " + totalBoxes + " volle " + (totalBoxes === 1 ? "doos" : "dozen") +
+            " en verwijder " + removeItems + " " + (removeItems === 1 ? "stuk" : "stuks") +
+            " uit de laatste doos.";
+
+          if(handlingOne < handlingTwo){
+            styleOption("optionOne","badgeOne",true,false);
+            styleOption("optionTwo","badgeTwo",false,false);
+          }else if(handlingTwo < handlingOne){
+            styleOption("optionOne","badgeOne",false,false);
+            styleOption("optionTwo","badgeTwo",true,false);
+          }else{
+            styleOption("optionOne","badgeOne",true,true);
+            styleOption("optionTwo","badgeTwo",true,true);
+          }
+        }
+
+        lastCopyText =
+          "Order: " + orderQty + " stuks\n" +
+          "Doosinhoud: " + boxQty + " stuks\n\n" +
+          "Optie 1: " + fullBoxes + " volle dozen + " + looseItems +
+          " losse stuks pakken (" + handlingOne + " handelingen)\n" +
+          "Optie 2: " + totalBoxes + " volle dozen + " + removeItems +
+          " stuks verwijderen (" + handlingTwo + " handelingen)";
+
+        results.classList.add("show");
+        results.scrollIntoView({behavior:"smooth", block:"nearest"});
+      });
+
+      resetBtn.addEventListener("click", function(){
+        form.reset();
+        clearError();
+        results.classList.remove("show");
+        lastCopyText = "";
+        orderInput.focus();
+        window.scrollTo({top:0, behavior:"smooth"});
+      });
+
+      copyBtn.addEventListener("click", async function(){
+        if(!lastCopyText) return;
+
+        try{
+          await navigator.clipboard.writeText(lastCopyText);
+          const oldText = copyBtn.textContent;
+          copyBtn.textContent = "Gekopieerd";
+          setTimeout(function(){ copyBtn.textContent = oldText; }, 1400);
+        }catch(e){
+          window.prompt("Kopieer de uitkomst:", lastCopyText);
+        }
+      });
+    }());
+  </script>
+</body>
+</html>
